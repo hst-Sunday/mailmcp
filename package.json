@@ -1,0 +1,65 @@
+{
+  "name": "mailmcp",
+  "version": "0.1.0",
+  "description": "An email MCP service that supports querying and sending messages via QQ, Gmail, and other providers, extracting only the text content—ideal for summarization.",
+  "main": "dist/index.js",
+  "bin": {
+    "mailmcp": "./dist/index.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hst-Sunday/mailmcp.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint src/**/*.ts",
+    "test:client": "tsx src/examples/client.ts",
+    "test:client:streamable-http": "tsx src/examples/client.ts streamable-http",
+    "test:client:sse": "tsx src/examples/client.ts sse",
+    "test:client:backward-compatible": "tsx src/examples/client.ts backward-compatible",
+    "test:client:stdio": "tsx src/examples/client.ts stdio"
+  },
+  "keywords": [
+    "mailmcp",
+    "email-mcp-server",
+    "email-mcp-client",
+    "email-mcp-tools",
+    "email-mcp-utils",
+    "gmail-mcp",
+    "qq-email-mcp"
+  ],
+  "author": "Sunday",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.15.1",
+    "cheerio": "^1.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "html-to-text": "^9.0.5",
+    "imapflow": "^1.0.191",
+    "mailparser": "^3.7.4",
+    "nodemailer": "^6.9.8",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/html-to-text": "^9.0.4",
+    "@types/mailparser": "^3.4.6",
+    "@types/node": "^22.14.0",
+    "@types/nodemailer": "^6.4.14",
+    "eslint": "^9.31.0",
+    "globals": "^16.3.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.37.0"
+  }
+}

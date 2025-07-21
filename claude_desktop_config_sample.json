@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "mailmcp": {
+      "command": "node",
+        "args": [
+          "/path/to/mailmcp/index.js"
+        ],
+        "env": {
+          "SERVICE_HOST": "https://mailauth.mailmcp.de",
+          "GMAIL_AUTH_ENDPOINT": "/api/auth/gmail-oauth",
+          "GMAIL_TOKEN_REFRESH_ENDPOINT": "/api/auth/refresh-token"
+        }
+    }
+  }
+}
