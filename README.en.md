@@ -1,7 +1,7 @@
 [🇨🇳 查看中文版](./README.md)
 # MailMCP (Model Context Protocol) Server
 
-MailMCP is a TypeScript-based MCP server supporting multiple transport protocols (Stdio, HTTP+SSE, Streamable HTTP, Backward Compatible). It features intelligent logging, email integration (QQ Mail, Gmail OAuth), modular tool registration with parameter validation, and is ideal for AI Agent, automation, and email scenarios requiring a highly extensible backend.
+MailMCP is a TypeScript-based MCP server supporting multiple transport protocols (Stdio, HTTP+SSE, Streamable HTTP, Backward Compatible). It features intelligent logging, email integration (QQ Mail, Gmail OAuth), modular tool registration with parameter validation, and is ideal for AI Agent, automation, and email scenarios requiring a highly extensible backend. It is recommended to use this project together with [mail-auth](https://github.com/hst-Sunday/mail-auth.git).
 
 ---
 
@@ -66,7 +66,7 @@ npm run build
 
 Reference [claude_desktop_config_sample.json](./claude_desktop_config_sample.json)  
 
-⚠️Note: `Google oauth` uses [https://mailauth.mailmcp.de](https://mailauth.mailmcp.de) authorization service, not yet open source 
+⚠️Note: `Google oauth` uses the [https://mailauth.mailmcp.de](https://mailauth.mailmcp.de) authorization service, which is open source at [https://github.com/hst-Sunday/mail-auth.git](https://github.com/hst-Sunday/mail-auth.git).
 
 ## 💻 Local Development
 

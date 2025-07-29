@@ -60,6 +60,46 @@ export class EmailStorage {
   private static readonly STORAGE_PATH = path.join(EmailStorage.STORAGE_DIR, EmailStorage.STORAGE_FILE);
 
   /**
+   * 创建默认存储数据
+   */
+  private static createDefaultStorageData(): StorageData {
+    return {
+      accounts: [],
+      lastUpdated: new Date().toISOString()
+    };
+  }
+
+  /**
+   * 验证存储数据结构
+   */
+  private static validateStorageData(data: unknown): StorageData {
+    if (!data || typeof data !== 'object') {
+      Logger.warn('Invalid storage data: not an object, creating default');
+      return EmailStorage.createDefaultStorageData();
+    }
+
+    const obj = data as Record<string, unknown>;
+
+    // 确保 accounts 数组存在
+    if (!Array.isArray(obj.accounts)) {
+      Logger.warn('Invalid storage data: accounts is not an array, fixing');
+      obj.accounts = [];
+    }
+
+    // 确保 lastUpdated 存在
+    if (!obj.lastUpdated || typeof obj.lastUpdated !== 'string') {
+      obj.lastUpdated = new Date().toISOString();
+    }
+
+    // 确保 gmailAuths 是数组（如果存在）
+    if (obj.gmailAuths && !Array.isArray(obj.gmailAuths)) {
+      obj.gmailAuths = [];
+    }
+
+    return obj as unknown as StorageData;
+  }
+
+  /**
    * 初始化存储文件
    */
   private static async initializeStorage(): Promise<void> {
@@ -67,14 +107,20 @@ export class EmailStorage {
       // 确保目录存在
       await fs.mkdir(EmailStorage.STORAGE_DIR, { recursive: true });
       await fs.access(EmailStorage.STORAGE_PATH);
+      
+      // 检查文件是否有效
+      const data = await fs.readFile(EmailStorage.STORAGE_PATH, 'utf8');
+      if (!data.trim()) {
+        throw new Error('Empty storage file');
+      }
+      
+      // 尝试解析 JSON 以验证文件有效性
+      JSON.parse(data);
     } catch {
-      // 文件不存在，创建默认结构
-      const defaultData: StorageData = {
-        accounts: [],
-        lastUpdated: new Date().toISOString()
-      };
+      // 文件不存在或无效，创建默认结构
+      const defaultData = EmailStorage.createDefaultStorageData();
       await fs.writeFile(EmailStorage.STORAGE_PATH, JSON.stringify(defaultData, null, 2), 'utf8');
-      Logger.info('Storage file created');
+      Logger.info('Storage file created or repaired');
     }
   }
 
@@ -86,10 +132,37 @@ export class EmailStorage {
       await EmailStorage.initializeStorage();
       Logger.info("EmailStorage.STORAGE_PATH:", EmailStorage.STORAGE_PATH);
       const data = await fs.readFile(EmailStorage.STORAGE_PATH, 'utf8');
-      return JSON.parse(data) as StorageData;
+      
+      // 解析并验证 JSON 数据
+      let parsedData;
+      try {
+        parsedData = JSON.parse(data);
+      } catch (parseError) {
+        Logger.warn('Invalid JSON in storage file, creating default data', parseError);
+        const defaultData = EmailStorage.createDefaultStorageData();
+        await fs.writeFile(EmailStorage.STORAGE_PATH, JSON.stringify(defaultData, null, 2), 'utf8');
+        return defaultData;
+      }
+      
+      // 验证并修复数据结构
+      const validatedData = EmailStorage.validateStorageData(parsedData);
+      
+      // 如果数据被修复，保存回文件
+      if (JSON.stringify(validatedData) !== JSON.stringify(parsedData)) {
+        await fs.writeFile(EmailStorage.STORAGE_PATH, JSON.stringify(validatedData, null, 2), 'utf8');
+        Logger.info('Storage data structure repaired and saved');
+      }
+      
+      return validatedData;
     } catch (error) {
-      Logger.error('Failed to read storage', error);
-      throw new Error('Failed to read storage data');
+      Logger.error('Failed to read storage, creating default', error);
+      const defaultData = EmailStorage.createDefaultStorageData();
+      try {
+        await fs.writeFile(EmailStorage.STORAGE_PATH, JSON.stringify(defaultData, null, 2), 'utf8');
+      } catch (writeError) {
+        Logger.error('Failed to create default storage file', writeError);
+      }
+      return defaultData;
     }
   }
 
@@ -374,10 +447,18 @@ export class EmailStorage {
    * 检查并清理过期的OAuth令牌
    */
   static async checkAndCleanExpiredTokens(): Promise<void> {
-    const storage = await EmailStorage.readStorage();
-    let hasChanges = false;
+    try {
+      const storage = await EmailStorage.readStorage();
+      
+      // 安全检查：确保 accounts 数组存在
+      if (!storage || !Array.isArray(storage.accounts)) {
+        Logger.warn('Invalid storage structure in checkAndCleanExpiredTokens, skipping token cleanup');
+        return;
+      }
+      
+      let hasChanges = false;
 
-    for (let i = 0; i < storage.accounts.length; i++) {
+      for (let i = 0; i < storage.accounts.length; i++) {
       const account = storage.accounts[i];
       if (account.provider === 'Gmail' && account.tokenExpiry) {
         const expiryDate = new Date(account.tokenExpiry);
@@ -410,9 +491,13 @@ export class EmailStorage {
       }
     }
 
-    if (hasChanges) {
-      await EmailStorage.writeStorage(storage);
-      Logger.info('Completed OAuth token cleanup and refresh attempts');
+      if (hasChanges) {
+        await EmailStorage.writeStorage(storage);
+        Logger.info('Completed OAuth token cleanup and refresh attempts');
+      }
+    } catch (error) {
+      Logger.error('Error in checkAndCleanExpiredTokens, continuing with startup', error);
+      // 不要抛出错误，让应用继续启动
     }
   }
 

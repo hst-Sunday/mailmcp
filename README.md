@@ -2,7 +2,7 @@
 
 # MailMCP (Model Context Protocol) Server
 
-MailMCP 是一个基于 TypeScript 的多传输协议（Stdio、HTTP+SSE、Streamable HTTP、向后兼容）MCP 服务器，内置智能日志、邮件集成（QQ邮箱、Gmail OAuth）、模块化工具注册与参数校验，适合 AI Agent、自动化和邮件场景的高可扩展服务端项目。
+MailMCP 是一个基于 TypeScript 的多传输协议（Stdio、HTTP+SSE、Streamable HTTP、向后兼容）MCP 服务器，内置智能日志、邮件集成（QQ邮箱、Gmail OAuth）、模块化工具注册与参数校验，适合 AI Agent、自动化和邮件场景的高可扩展服务端项目。此项目最好与[mail-auth](https://github.com/hst-Sunday/mail-auth.git)配合使用。
 
 ---
 
@@ -66,8 +66,7 @@ npm run build
 `claude desktop 使用` 
 
 参考[claude_desktop_config_sample.json](./claude_desktop_config_sample.json)  
-
-⚠️注意: `Google oauth`使用[https://mailauth.mailmcp.de](https://mailauth.mailmcp.de) 授权服务，尚未开源 
+⚠️注意: `Google oauth`使用[https://mailauth.mailmcp.de](https://mailauth.mailmcp.de) 授权服务，已经开源[https://github.com/hst-Sunday/mail-auth.git](https://github.com/hst-Sunday/mail-auth.git)
 
 ## 💻 本地开发
 
